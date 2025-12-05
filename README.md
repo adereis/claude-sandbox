@@ -152,6 +152,41 @@ podman rmi $(podman images -q 'claude-sandbox/*')
 - Git, git-extras, git-filter-repo, gh (GitHub CLI)
 - ripgrep, fd, vim
 
+## Security Considerations
+
+This setup provides **convenience isolation**, not **security hardening**. It protects against accidents, not malicious behavior.
+
+### What's Protected
+
+| Threat | Status |
+|--------|--------|
+| Accidents outside ~/projects | Protected — can't touch other home directories |
+| System file modification | Protected — rootless Podman, container root ≠ host root |
+| Persistent malware | Mitigated — `--rm` clears container on exit |
+| Other users' files | Protected — namespace isolation |
+
+### What's Exposed
+
+| Asset | Access | Risk |
+|-------|--------|------|
+| `~/projects` | Read-write | Full modification/deletion of all projects |
+| `~/.claude` | Read-write | Auth tokens, conversation history |
+| `~/.config/gcloud` | Read-only | Can authenticate to GCP, access cloud resources |
+| Network | Unrestricted | Data exfiltration, external connections |
+| CPU/Memory | Unlimited | Could DoS host |
+
+### With `--dangerously-skip-permissions`
+
+Claude can, without confirmation:
+- Delete or modify your entire projects directory
+- Read and exfiltrate source code over the network
+- Use your cloud credentials to access resources
+- Install and run arbitrary software
+
+### Bottom Line
+
+This setup is for **containing mess, not containing malice**. It's appropriate for experimentation where you trust the model but want easy cleanup and separation from the rest of your system.
+
 ## Troubleshooting
 
 ### Permission denied on ~/.claude
