@@ -131,8 +131,8 @@ Run separate environments with different names:
 
 - Node.js, npm
 - Python 3, pip
-- Git, ripgrep, fd, vim
-- Image processing: ImageMagick, jpegoptim, development libraries
+- Git, git-extras, git-filter-repo, gh (GitHub CLI)
+- ripgrep, fd, vim
 
 ## Troubleshooting
 

@@ -5,17 +5,14 @@ RUN dnf install -y \
     nodejs \
     npm \
     git \
+    git-extras \
+    git-filter-repo \
+    gh \
     ripgrep \
     fd-find \
     vim \
-    && dnf clean all
-
-# Python and image processing libraries
-RUN dnf install -y \
-    python3 python3-pip python3-devel \
-    libjpeg-turbo-devel zlib-devel libwebp-devel \
-    libtiff-devel freetype-devel lcms2-devel \
-    jpegoptim ImageMagick \
+    python3 \
+    python3-pip \
     && dnf clean all
 
 # Install Claude Code globally
