@@ -11,7 +11,7 @@ if [[ $- == *i* ]] && [ -t 0 ]; then
 fi
 
 # Vi mode with custom keybindings
-set -o vi
+#set -o vi
 
 # ^p check for partial match in history
 bind -m vi-insert "\C-p":dynamic-complete-history
@@ -21,15 +21,7 @@ bind -m vi-insert "\C-n":menu-complete
 bind -m vi-insert "\C-l":clear-screen
 
 # Aliases
-alias l="/bin/ls -1 -F --color=auto"
-alias ls="ls -lF --color=auto"
-alias la="ls -laF --color=auto --sort=ext"
-alias dir="dir --color=auto"
-alias rm='rm -i'
-alias mv='mv -i'
-alias cd='cd -P'
 alias vi='vim'
-alias tree="tree --charset ascii"
 
 # Git prompt
 if [ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]; then
