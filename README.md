@@ -72,7 +72,7 @@ Environment variables (set on host or in `~/.claude-sandbox.env`):
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `CLAUDE_SANDBOX_IMAGE` | `claude-sandbox` | Container image name |
+| `CLAUDE_SANDBOX_IMAGE` | `claude-sandbox/default` | Container image name |
 | `CLAUDE_SANDBOX_CONTAINER` | `claude-sandbox` | Container instance name |
 | `CLAUDE_SANDBOX_PROJECTS` | `$HOME/projects` | Host projects directory |
 | `ANTHROPIC_API_KEY` | - | Anthropic API key |
@@ -88,7 +88,7 @@ Usage: run.sh [OPTIONS] [-- COMMAND]
 
 Options:
   -n, --name NAME        Container name (default: claude-sandbox)
-  -i, --image IMAGE      Image name (default: claude-sandbox)
+  -i, --image IMAGE      Image name (default: default → claude-sandbox/default)
   -p, --projects DIR     Projects directory to mount (default: ~/projects)
 ```
 
@@ -98,7 +98,7 @@ Options:
 Usage: build.sh [OPTIONS]
 
 Options:
-  -i, --image IMAGE      Image name (default: claude-sandbox)
+  -i, --image IMAGE      Image name (default: default → claude-sandbox/default)
 ```
 
 ### root-shell.sh / save-image.sh
@@ -111,20 +111,38 @@ Options:
 
 ## Multiple Environments
 
-Run separate environments with different names:
+All images are prefixed with `claude-sandbox/` automatically:
 
 ```bash
-# Build a project-specific image
-./build.sh -i myproject-sandbox
+# Build a project-specific image (creates claude-sandbox/myproject)
+./build.sh -i myproject
 
-# Run with custom name and projects directory
-./run.sh -n myproject -i myproject-sandbox -p ~/work/myproject
+# Run it
+./run.sh -i myproject -n myproject -p ~/work/myproject
 
-# In another terminal, get root shell for that container
+# In another terminal
 ./root-shell.sh -n myproject
+./save-image.sh -n myproject -i myproject
+```
 
-# Save that container's state
-./save-image.sh -n myproject -i myproject-sandbox
+## Managing Images
+
+List all sandbox images:
+
+```bash
+podman images 'claude-sandbox/*'
+```
+
+Remove an image:
+
+```bash
+podman rmi claude-sandbox/myproject
+```
+
+Remove all sandbox images:
+
+```bash
+podman rmi $(podman images -q 'claude-sandbox/*')
 ```
 
 ## Included Tools

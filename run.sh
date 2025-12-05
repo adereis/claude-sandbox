@@ -26,7 +26,8 @@ EOF
 }
 
 # Defaults (env vars take precedence, CLI overrides both)
-IMAGE_NAME="${CLAUDE_SANDBOX_IMAGE:-claude-sandbox}"
+IMAGE_PREFIX="claude-sandbox"
+IMAGE_NAME="${CLAUDE_SANDBOX_IMAGE:-$IMAGE_PREFIX/default}"
 CONTAINER_NAME="${CLAUDE_SANDBOX_CONTAINER:-claude-sandbox}"
 PROJECTS_DIR="${CLAUDE_SANDBOX_PROJECTS:-$HOME/projects}"
 
@@ -37,7 +38,7 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         -i|--image)
-            IMAGE_NAME="$2"
+            IMAGE_NAME="$IMAGE_PREFIX/$2"
             shift 2
             ;;
         -p|--projects)

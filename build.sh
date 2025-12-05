@@ -19,12 +19,13 @@ EOF
     exit 0
 }
 
-IMAGE_NAME="${CLAUDE_SANDBOX_IMAGE:-claude-sandbox}"
+IMAGE_PREFIX="claude-sandbox"
+IMAGE_NAME="${CLAUDE_SANDBOX_IMAGE:-$IMAGE_PREFIX/default}"
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         -i|--image)
-            IMAGE_NAME="$2"
+            IMAGE_NAME="$IMAGE_PREFIX/$2"
             shift 2
             ;;
         -h|--help)
