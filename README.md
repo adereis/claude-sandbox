@@ -79,12 +79,53 @@ Environment variables (set on host or in `~/.claude-sandbox.env`):
 
 ## Scripts
 
-| Script | Description |
-|--------|-------------|
-| `build.sh` | Build the container image |
-| `run.sh` | Start an interactive container |
-| `root-shell.sh` | Get root access in running container |
-| `save-image.sh` | Commit container state to image |
+All scripts support `-h` or `--help` for usage information.
+
+### run.sh
+
+```
+Usage: run.sh [OPTIONS] [-- COMMAND]
+
+Options:
+  -n, --name NAME        Container name (default: claude-sandbox)
+  -i, --image IMAGE      Image name (default: claude-sandbox)
+  -p, --projects DIR     Projects directory to mount (default: ~/projects)
+```
+
+### build.sh
+
+```
+Usage: build.sh [OPTIONS]
+
+Options:
+  -i, --image IMAGE      Image name (default: claude-sandbox)
+```
+
+### root-shell.sh / save-image.sh
+
+```
+Options:
+  -n, --name NAME        Container name (default: claude-sandbox)
+  -i, --image IMAGE      Image name (save-image.sh only)
+```
+
+## Multiple Environments
+
+Run separate environments with different names:
+
+```bash
+# Build a project-specific image
+./build.sh -i myproject-sandbox
+
+# Run with custom name and projects directory
+./run.sh -n myproject -i myproject-sandbox -p ~/work/myproject
+
+# In another terminal, get root shell for that container
+./root-shell.sh -n myproject
+
+# Save that container's state
+./save-image.sh -n myproject -i myproject-sandbox
+```
 
 ## Included Tools
 

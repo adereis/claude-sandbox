@@ -3,9 +3,63 @@
 
 set -e
 
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") [OPTIONS] [-- COMMAND]
+
+Options:
+  -n, --name NAME        Container name (default: claude-sandbox)
+  -i, --image IMAGE      Image name (default: claude-sandbox)
+  -p, --projects DIR     Projects directory to mount (default: ~/projects)
+  -h, --help             Show this help
+
+Environment variables:
+  CLAUDE_SANDBOX_CONTAINER, CLAUDE_SANDBOX_IMAGE, CLAUDE_SANDBOX_PROJECTS
+
+Examples:
+  ./run.sh                              # Start with defaults
+  ./run.sh -n myproject                 # Custom container name
+  ./run.sh -n dev -p ~/work/project     # Custom name and projects dir
+  ./run.sh -- claude --dangerously-skip-permissions
+EOF
+    exit 0
+}
+
+# Defaults (env vars take precedence, CLI overrides both)
 IMAGE_NAME="${CLAUDE_SANDBOX_IMAGE:-claude-sandbox}"
 CONTAINER_NAME="${CLAUDE_SANDBOX_CONTAINER:-claude-sandbox}"
 PROJECTS_DIR="${CLAUDE_SANDBOX_PROJECTS:-$HOME/projects}"
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -n|--name)
+            CONTAINER_NAME="$2"
+            shift 2
+            ;;
+        -i|--image)
+            IMAGE_NAME="$2"
+            shift 2
+            ;;
+        -p|--projects)
+            PROJECTS_DIR="$2"
+            shift 2
+            ;;
+        -h|--help)
+            usage
+            ;;
+        --)
+            shift
+            break
+            ;;
+        -*)
+            echo "Unknown option: $1" >&2
+            exit 1
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
 
 # Ensure required directories exist on host
 mkdir -p "$HOME/.claude"
