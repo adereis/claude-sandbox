@@ -16,9 +16,60 @@ A containerized environment for running Claude Code in autonomous mode. Provides
 # Run the container
 ./run.sh
 
-# Inside the container, start Claude
+# Inside the container, start Claude (see Permission Modes below)
+claude
+```
+
+## Permission Modes
+
+Claude Code has several permission modes, from most to least restrictive:
+
+### Default Mode (Recommended for Most Users)
+
+```bash
+claude
+```
+
+Claude prompts for confirmation on potentially dangerous operations. You approve each action as it runs.
+
+### Pre-approved Tools
+
+Allow specific tools without prompting, while still requiring approval for others:
+
+```bash
+# Allow file operations, prompt for bash commands
+claude --allowedTools "Read,Write,Edit,Glob,Grep"
+
+# Allow git commands, prompt for everything else
+claude --allowedTools "Bash(git:*)"
+```
+
+### Block Specific Tools
+
+Deny tools you consider risky:
+
+```bash
+# Block network tools (note: incomplete, many ways to access network)
+claude --disallowedTools "Bash(curl:*),Bash(wget:*),WebFetch,WebSearch"
+```
+
+### Full Autonomy
+
+Skip all permission checks. Use only when you accept the risks:
+
+```bash
 claude --dangerously-skip-permissions
 ```
+
+### Combining Options
+
+```bash
+# Allow most tools, but block network access from bash
+claude --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*)" \
+       --disallowedTools "Bash(curl:*),Bash(wget:*),WebFetch"
+```
+
+**Note**: There's no built-in way to allow API access while blocking all other network traffic. Claude needs unrestricted network to reach the Anthropic/Vertex API.
 
 ## Directory Structure
 
