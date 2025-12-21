@@ -15,6 +15,11 @@ RUN dnf install -y \
     python3-pip \
     && dnf clean all
 
+# Passwordless sudo for development convenience
+RUN dnf install -y sudo && \
+    echo "ALL ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/nopasswd && \
+    dnf clean all
+
 # C/C++ development environment
 RUN dnf install -y \
     # Compilers
