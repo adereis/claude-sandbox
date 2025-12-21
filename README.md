@@ -198,10 +198,21 @@ podman rmi $(podman images -q 'claude-sandbox/*')
 
 ## Included Tools
 
-- Node.js, npm
-- Python 3, pip
+### General
 - Git, git-extras, git-filter-repo, gh (GitHub CLI)
 - ripgrep, fd, vim
+
+### Languages & Runtimes
+- Node.js, npm
+- Python 3, pip
+
+### C/C++ Development
+- **Compilers**: gcc, g++, clang
+- **Build systems**: cmake, make, ninja, autoconf/automake, meson, pkg-config
+- **Debugging**: gdb, valgrind, strace, ltrace, perf
+- **Static analysis**: clang-tidy, clang-format, cppcheck, bear
+- **Sanitizers**: AddressSanitizer, UBSan, ThreadSanitizer, LeakSanitizer
+- **Libraries**: libpcap-devel, openssl-devel, zlib-devel, cmocka
 
 ## Security Considerations
 

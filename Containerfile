@@ -15,6 +15,48 @@ RUN dnf install -y \
     python3-pip \
     && dnf clean all
 
+# C/C++ development environment
+RUN dnf install -y \
+    # Compilers
+    gcc \
+    gcc-c++ \
+    clang \
+    # Build systems
+    cmake \
+    make \
+    ninja-build \
+    autoconf \
+    automake \
+    libtool \
+    pkgconf \
+    meson \
+    # Debugging & profiling
+    gdb \
+    valgrind \
+    strace \
+    ltrace \
+    perf \
+    # Static analysis & formatting
+    clang-tools-extra \
+    cppcheck \
+    bear \
+    # Sanitizer libraries
+    libasan \
+    libubsan \
+    libtsan \
+    liblsan \
+    # Common development libraries
+    glibc-devel \
+    libpcap-devel \
+    libcmocka-devel \
+    openssl-devel \
+    zlib-devel \
+    # Documentation
+    man-db \
+    man-pages \
+    doxygen \
+    && dnf clean all
+
 # Install Claude Code globally
 RUN npm install -g @anthropic-ai/claude-code
 
