@@ -11,6 +11,7 @@ Options:
   -n, --name NAME        Container name (default: claude-sandbox)
   -i, --image IMAGE      Image name (default: claude-sandbox)
   -p, --projects DIR     Projects directory to mount (default: ~/projects)
+  --cap-add CAP          Add Linux capability (can be used multiple times)
   -h, --help             Show this help
 
 Environment variables:
@@ -20,6 +21,7 @@ Examples:
   ./run.sh                              # Start with defaults
   ./run.sh -n myproject                 # Custom container name
   ./run.sh -n dev -p ~/work/project     # Custom name and projects dir
+  ./run.sh --cap-add CAP_NET_ADMIN --cap-add CAP_NET_RAW  # Network capabilities
   ./run.sh -- claude --dangerously-skip-permissions
 EOF
     exit 0
@@ -30,6 +32,7 @@ IMAGE_PREFIX="claude-sandbox"
 IMAGE_NAME="${CLAUDE_SANDBOX_IMAGE:-$IMAGE_PREFIX/default}"
 CONTAINER_NAME="${CLAUDE_SANDBOX_CONTAINER:-claude-sandbox}"
 PROJECTS_DIR="${CLAUDE_SANDBOX_PROJECTS:-$HOME/projects}"
+CAP_ARGS=()
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -43,6 +46,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         -p|--projects)
             PROJECTS_DIR="$2"
+            shift 2
+            ;;
+        --cap-add)
+            CAP_ARGS+=(--cap-add "$2")
             shift 2
             ;;
         -h|--help)
@@ -116,6 +123,7 @@ exec podman run -it --rm \
     --name "$CONTAINER_NAME" \
     --userns=keep-id \
     --user "$(id -u):$(id -g)" \
+    "${CAP_ARGS[@]}" \
     -e HOME=/home/claude \
     -w /home/claude/projects \
     "${VOLUMES[@]}" \

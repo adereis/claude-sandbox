@@ -41,6 +41,8 @@ RUN dnf install -y \
     strace \
     ltrace \
     perf \
+    # Networking tools
+    iproute \
     # Static analysis & formatting
     clang-tools-extra \
     cppcheck \
