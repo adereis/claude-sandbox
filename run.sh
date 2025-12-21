@@ -82,11 +82,35 @@ if [ -f "$HOME/.claude-sandbox.env" ]; then
     VOLUMES+=(-v "$HOME/.claude-sandbox.env:/home/claude/.claude-sandbox.env:ro,z")
 fi
 
-# Pass through API key if set
+# Pass through authentication and configuration environment variables
 ENV_ARGS=()
-if [ -n "$ANTHROPIC_API_KEY" ]; then
-    ENV_ARGS+=(-e ANTHROPIC_API_KEY)
-fi
+
+# Claude/Anthropic variables (API, Vertex, Bedrock, Foundry)
+for var in $(env | grep -E '^(ANTHROPIC_|CLAUDE_CODE_|CLOUD_ML_)' | cut -d= -f1); do
+    ENV_ARGS+=(-e "$var")
+done
+
+# AWS credentials (for Bedrock)
+for var in $(env | grep -E '^AWS_' | cut -d= -f1); do
+    ENV_ARGS+=(-e "$var")
+done
+
+# Azure credentials (for Foundry)
+for var in $(env | grep -E '^AZURE_' | cut -d= -f1); do
+    ENV_ARGS+=(-e "$var")
+done
+
+# Google Cloud credentials (for Vertex AI)
+for var in $(env | grep -E '^(GOOGLE_|GCLOUD_)' | cut -d= -f1); do
+    ENV_ARGS+=(-e "$var")
+done
+
+# Proxy settings
+for var in HTTPS_PROXY HTTP_PROXY NO_PROXY https_proxy http_proxy no_proxy; do
+    if [ -n "${!var}" ]; then
+        ENV_ARGS+=(-e "$var")
+    fi
+done
 
 exec podman run -it --rm \
     --name "$CONTAINER_NAME" \
