@@ -119,6 +119,12 @@ for var in HTTPS_PROXY HTTP_PROXY NO_PROXY https_proxy http_proxy no_proxy; do
     fi
 done
 
+echo "Starting container '$CONTAINER_NAME' from image '$IMAGE_NAME'..."
+echo "Mounting: $PROJECTS_DIR -> /home/claude/projects"
+[ -d "$HOME/.config/gcloud" ] && echo "Mounting: ~/.config/gcloud (read-only)"
+echo "(First run may be slow due to SELinux relabeling)"
+echo ""
+
 exec podman run -it --rm \
     --name "$CONTAINER_NAME" \
     --userns=keep-id \
