@@ -10,6 +10,8 @@ RUN dnf install -y \
     gh \
     ripgrep \
     fd-find \
+    jq \
+    tree \
     vim \
     python3 \
     python3-pip \
