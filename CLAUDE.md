@@ -25,13 +25,18 @@ Forces explicit decisions about persistence. Users must run `save-image.sh` to k
 ## File Overview
 
 ```
-Containerfile          # Image definition (Fedora 42 base)
-bashrc                 # Shell configuration copied into image
-run.sh                 # Main entry point, sets up mounts and user mapping
-root-shell.sh          # Exec into running container as root
-save-image.sh          # Commit container state to image
-build.sh               # Rebuild image from Containerfile
-claude-sandbox.env.example  # Template for user environment config
+Containerfile              # Image definition (Fedora 42 base)
+bashrc                     # Shell configuration copied into image
+run.sh                     # Main entry point, sets up mounts and user mapping
+entrypoint.sh              # Container entrypoint, starts network filtering proxy
+root-shell.sh              # Exec into running container as root
+save-image.sh              # Commit container state to image
+build.sh                   # Rebuild image from Containerfile
+claude-sandbox.env.example # Template for user environment config
+tinyproxy.conf             # Proxy server configuration (whitelist mode)
+network-whitelist.conf     # Default allowed domains (Claude API, GitHub, npm)
+network-whitelist-gcp.conf # GCP/Vertex AI domains (auto-appended when detected)
+network-whitelist-aws.conf # AWS/Bedrock domains (auto-appended when detected)
 ```
 
 ## Modification Patterns
@@ -66,6 +71,24 @@ For runtime: Add to `bashrc` or instruct users to add to `~/.claude-sandbox.env`
 ### Changing the base image
 
 Update the `FROM` line in Containerfile. Adjust package manager commands (dnf → apt-get, etc.) accordingly.
+
+### Network restrictions
+
+Outbound network is restricted by default via a tinyproxy whitelist proxy inside the container. Only domains in `network-whitelist.conf` (plus auto-detected cloud provider domains) can be reached.
+
+**How it works:**
+1. `entrypoint.sh` runs before the user command
+2. Merges base whitelist + cloud provider addons + user overrides into a single file
+3. Starts tinyproxy on `127.0.0.1:8888` with `FilterDefaultDeny`
+4. Sets `HTTP_PROXY`/`HTTPS_PROXY` so all tools route through it
+5. Execs the user command
+
+**Adding domains to the default whitelist:**
+Edit `network-whitelist.conf`. Patterns are ERE matched against the request domain. Use `(^|\.)example\.com$` to match a domain and all subdomains.
+
+**Disabling filtering:** Pass `--network-unrestricted` to `run.sh`.
+
+**Host proxy interaction:** If the host has `HTTPS_PROXY` set, tinyproxy is not started — the host proxy is used directly.
 
 ## Environment Variable Hierarchy
 

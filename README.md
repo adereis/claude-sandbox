@@ -69,7 +69,7 @@ claude --allowedTools "Read,Write,Edit,Glob,Grep,Bash(git:*)" \
        --disallowedTools "Bash(curl:*),Bash(wget:*),WebFetch"
 ```
 
-**Note**: There's no built-in way to allow API access while blocking all other network traffic. Claude needs unrestricted network to reach the Anthropic/Vertex API.
+**Note**: Network access is filtered by default — only domains required by Claude Code are reachable. See [Network Restrictions](#network-restrictions) for details.
 
 ## Directory Structure
 
@@ -128,6 +128,45 @@ Environment variables (set on host or in `~/.claude-sandbox.env`):
 | `CLAUDE_SANDBOX_PROJECTS` | `$HOME/projects` | Host projects directory |
 | `ANTHROPIC_API_KEY` | - | Anthropic API key |
 
+## Network Restrictions
+
+Outbound network access is filtered by default through a tinyproxy whitelist proxy. Only domains required for Claude Code are reachable:
+
+- `api.anthropic.com` — Claude API
+- `claude.ai`, `platform.claude.com` — Authentication
+- `github.com`, `api.github.com` — GitHub integration
+- `registry.npmjs.org` — npm packages
+- `statsig.anthropic.com`, `sentry.io` — Telemetry
+
+Cloud provider domains (Vertex AI, Bedrock) are auto-detected from environment variables and credentials.
+
+### Allowing extra domains
+
+For one-off additions:
+
+```bash
+./run.sh --network-allow jira.example.com --network-allow registry.internal.com
+```
+
+For a reusable whitelist file (ERE patterns, one per line):
+
+```bash
+echo '(^|\.)mycompany\.atlassian\.net$' > ~/my-domains.conf
+./run.sh --network-whitelist ~/my-domains.conf
+```
+
+### Disabling network restrictions
+
+```bash
+./run.sh --network-unrestricted
+```
+
+### Limitations
+
+- Only filters HTTP/HTTPS traffic (raw TCP/SSH connections are not filtered)
+- Applications must respect proxy environment variables (all included tools do)
+- DNS resolution is unrestricted (but connections to non-whitelisted domains are blocked)
+
 ## Scripts
 
 All scripts support `-h` or `--help` for usage information.
@@ -138,9 +177,12 @@ All scripts support `-h` or `--help` for usage information.
 Usage: run.sh [OPTIONS] [-- COMMAND]
 
 Options:
-  -n, --name NAME        Container name (default: claude-sandbox)
-  -i, --image IMAGE      Image name (default: default → claude-sandbox/default)
-  -p, --projects DIR     Projects directory to mount (default: ~/projects)
+  -n, --name NAME              Container name (default: claude-sandbox)
+  -i, --image IMAGE            Image name (default: default → claude-sandbox/default)
+  -p, --projects DIR           Projects directory to mount (default: ~/projects)
+  --network-unrestricted       Disable network filtering
+  --network-whitelist FILE     Additional network domain whitelist file
+  --network-allow DOMAIN       Allow an extra network domain (repeatable)
 ```
 
 ### build.sh
@@ -234,7 +276,7 @@ This setup provides **convenience isolation**, not **security hardening**. It pr
 | `~/projects` | Read-write | Full modification/deletion of all projects |
 | `~/.claude` | Read-write | Auth tokens, conversation history |
 | `~/.config/gcloud` | Read-only | Can authenticate to GCP, access cloud resources |
-| Network | Unrestricted | Data exfiltration, external connections |
+| Network | Filtered (whitelist proxy) | Bypass with `--network-unrestricted`; HTTP/HTTPS only |
 | CPU/Memory | Unlimited | Could DoS host |
 
 ### With `--dangerously-skip-permissions`
